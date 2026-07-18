@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2ecc71"/>
+      <stop offset="100%" style="stop-color:#27ae60"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3498db"/>
+      <stop offset="100%" style="stop-color:#2980b9"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e74c3c"/>
+      <stop offset="100%" style="stop-color:#c0392b"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="400" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.04" stroke="#ffffff" stroke-width="0.5">
+    <line x1="0" y1="50" x2="1280" y2="50"/>
+    <line x1="0" y1="100" x2="1280" y2="100"/>
+    <line x1="0" y1="150" x2="1280" y2="150"/>
+    <line x1="0" y1="200" x2="1280" y2="200"/>
+    <line x1="0" y1="250" x2="1280" y2="250"/>
+    <line x1="0" y1="300" x2="1280" y2="300"/>
+    <line x1="0" y1="350" x2="1280" y2="350"/>
+    <line x1="160" y1="0" x2="160" y2="400"/>
+    <line x1="320" y1="0" x2="320" y2="400"/>
+    <line x1="480" y1="0" x2="480" y2="400"/>
+    <line x1="640" y1="0" x2="640" y2="400"/>
+    <line x1="800" y1="0" x2="800" y2="400"/>
+    <line x1="960" y1="0" x2="960" y2="400"/>
+    <line x1="1120" y1="0" x2="1120" y2="400"/>
+  </g>
+
+  <!-- DSR Atom visualization (left side) -->
+  <!-- Central atom -->
+  <circle cx="200" cy="200" r="35" fill="none" stroke="url(#accent)" stroke-width="2.5" filter="url(#glow)" opacity="0.9"/>
+  <circle cx="200" cy="200" r="8" fill="#2ecc71" opacity="0.8"/>
+  <text x="200" y="205" text-anchor="middle" fill="#2ecc71" font-family="monospace" font-size="11" font-weight="bold" opacity="0.6">S</text>
+
+  <!-- Orbiting operators -->
+  <circle cx="200" cy="200" r="60" fill="none" stroke="#2ecc71" stroke-width="0.5" opacity="0.2" stroke-dasharray="4,4"/>
+  <circle cx="248" cy="168" r="5" fill="#2ecc71" opacity="0.6"/>
+  <circle cx="152" cy="232" r="5" fill="#2ecc71" opacity="0.6"/>
+  <circle cx="240" cy="240" r="5" fill="#2ecc71" opacity="0.4"/>
+
+  <!-- Ephemeral connections (dashed = generated on demand) -->
+  <line x1="235" y1="200" x2="310" y2="140" stroke="#2ecc71" stroke-width="1" stroke-dasharray="6,4" opacity="0.3"/>
+  <line x1="235" y1="200" x2="320" y2="220" stroke="#2ecc71" stroke-width="1" stroke-dasharray="6,4" opacity="0.3"/>
+  <line x1="235" y1="200" x2="290" y2="280" stroke="#2ecc71" stroke-width="1" stroke-dasharray="6,4" opacity="0.3"/>
+
+  <!-- Small satellite atoms -->
+  <circle cx="320" cy="135" r="12" fill="none" stroke="#2ecc71" stroke-width="1" opacity="0.3"/>
+  <circle cx="330" cy="222" r="12" fill="none" stroke="#2ecc71" stroke-width="1" opacity="0.3"/>
+  <circle cx="298" cy="288" r="12" fill="none" stroke="#2ecc71" stroke-width="1" opacity="0.3"/>
+
+  <!-- Graph DB visualization (bottom-left, faded) -->
+  <g opacity="0.15">
+    <circle cx="100" cy="320" r="8" fill="#3498db"/>
+    <circle cx="140" cy="340" r="8" fill="#3498db"/>
+    <circle cx="80" cy="355" r="8" fill="#3498db"/>
+    <circle cx="130" cy="300" r="8" fill="#3498db"/>
+    <line x1="100" y1="320" x2="140" y2="340" stroke="#3498db" stroke-width="1.5"/>
+    <line x1="100" y1="320" x2="80" y2="355" stroke="#3498db" stroke-width="1.5"/>
+    <line x1="100" y1="320" x2="130" y2="300" stroke="#3498db" stroke-width="1.5"/>
+    <line x1="140" y1="340" x2="130" y2="300" stroke="#3498db" stroke-width="1.5"/>
+  </g>
+
+  <!-- Vector DB visualization (bottom-left, faded) -->
+  <g opacity="0.15">
+    <rect x="60" y="80" width="50" height="6" rx="1" fill="#e74c3c"/>
+    <rect x="60" y="92" width="50" height="6" rx="1" fill="#e74c3c"/>
+    <rect x="60" y="104" width="50" height="6" rx="1" fill="#e74c3c"/>
+    <rect x="60" y="116" width="50" height="6" rx="1" fill="#e74c3c"/>
+  </g>
+
+  <!-- Title text -->
+  <text x="500" y="145" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="700" letter-spacing="-1">
+    Dynamic Semantic
+  </text>
+  <text x="500" y="205" fill="#ffffff" font-family="system-ui, -apple-system, sans-serif" font-size="52" font-weight="700" letter-spacing="-1">
+    Runtime
+  </text>
+
+  <!-- Accent bar -->
+  <rect x="500" y="222" width="80" height="3" rx="1.5" fill="url(#accent)"/>
+
+  <!-- Subtitle -->
+  <text x="500" y="258" fill="#8b949e" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="400">
+    Knowledge via on-demand generation
+  </text>
+
+  <!-- Formula -->
+  <text x="500" y="290" fill="#8b949e" font-family="monospace" font-size="14" opacity="0.6">
+    Knowledge = Invariants + Operators + Context
+  </text>
+
+  <!-- Tags -->
+  <g transform="translate(500, 315)">
+    <!-- DSR tag -->
+    <rect x="0" y="0" width="54" height="26" rx="13" fill="#2ecc71" opacity="0.15"/>
+    <text x="27" y="17" text-anchor="middle" fill="#2ecc71" font-family="system-ui, sans-serif" font-size="12" font-weight="600">DSR</text>
+
+    <!-- vs -->
+    <text x="72" y="17" fill="#8b949e" font-family="system-ui, sans-serif" font-size="12">vs</text>
+
+    <!-- Graph DB tag -->
+    <rect x="92" y="0" width="82" height="26" rx="13" fill="#3498db" opacity="0.15"/>
+    <text x="133" y="17" text-anchor="middle" fill="#3498db" font-family="system-ui, sans-serif" font-size="12" font-weight="600">Graph DB</text>
+
+    <!-- vs -->
+    <text x="192" y="17" fill="#8b949e" font-family="system-ui, sans-serif" font-size="12">vs</text>
+
+    <!-- Vector DB tag -->
+    <rect x="212" y="0" width="88" height="26" rx="13" fill="#e74c3c" opacity="0.15"/>
+    <text x="256" y="17" text-anchor="middle" fill="#e74c3c" font-family="system-ui, sans-serif" font-size="12" font-weight="600">Vector DB</text>
+  </g>
+
+  <!-- Right side: trade-off visualization -->
+  <g transform="translate(950, 120)">
+    <!-- Storage bar -->
+    <text x="0" y="0" fill="#8b949e" font-family="system-ui, sans-serif" font-size="11" font-weight="600">STORAGE</text>
+    <rect x="0" y="10" width="60" height="14" rx="3" fill="url(#accent)" opacity="0.8"/>
+    <rect x="0" y="30" width="160" height="14" rx="3" fill="url(#blue)" opacity="0.4"/>
+    <rect x="0" y="50" width="120" height="14" rx="3" fill="url(#red)" opacity="0.4"/>
+    <text x="70" y="22" fill="#2ecc71" font-family="monospace" font-size="10">DSR</text>
+    <text x="170" y="42" fill="#3498db" font-family="monospace" font-size="10">Graph</text>
+    <text x="130" y="62" fill="#e74c3c" font-family="monospace" font-size="10">Vector</text>
+  </g>
+
+  <g transform="translate(950, 220)">
+    <!-- Latency bar -->
+    <text x="0" y="0" fill="#8b949e" font-family="system-ui, sans-serif" font-size="11" font-weight="600">LATENCY</text>
+    <rect x="0" y="10" width="200" height="14" rx="3" fill="url(#accent)" opacity="0.8"/>
+    <rect x="0" y="30" width="40" height="14" rx="3" fill="url(#blue)" opacity="0.4"/>
+    <rect x="0" y="50" width="15" height="14" rx="3" fill="url(#red)" opacity="0.4"/>
+    <text x="210" y="22" fill="#2ecc71" font-family="monospace" font-size="10">DSR</text>
+    <text x="50" y="42" fill="#3498db" font-family="monospace" font-size="10">Graph</text>
+    <text x="25" y="62" fill="#e74c3c" font-family="monospace" font-size="10">Vector</text>
+  </g>
+
+  <!-- Trade-off arrow -->
+  <text x="1020" y="320" text-anchor="middle" fill="#8b949e" font-family="monospace" font-size="11" opacity="0.5">
+    less storage, more compute
+  </text>
+
+  <!-- Bottom border accent -->
+  <rect x="0" y="396" width="1280" height="4" fill="url(#accent)" opacity="0.6"/>
+</svg>
