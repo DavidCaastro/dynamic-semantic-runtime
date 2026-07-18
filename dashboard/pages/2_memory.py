@@ -107,8 +107,14 @@ if results:
         DSR ahorra **{ahorro_vs_nx:.0f}%** comparado con el mapa de conexiones
         y **{ahorro_vs_faiss:.0f}%** comparado con el album de fotos.
 
-        Esto importa cuando tienes un **sensor pequeno** (como un Arduino o un dispositivo IoT)
-        que solo tiene unos pocos KB de memoria. DSR cabe, los otros quiza no.
+        **Donde marca la diferencia en la practica:**
+        - **Sensor en un invernadero** (ESP32, 520 KB de RAM): DSR cabe con {n} sensores, un grafo completo no
+        - **Drone de inspeccion agricola** con 1 MB de almacenamiento para reglas de vuelo
+        - **Boya oceanografica** con panel solar y 256 KB: guarda reglas de monitoreo marino y procesa localmente
+        - **Collar GPS para ganado** que lleva reglas de geocerca con bateria limitada
+        - **Estacion sismica remota** alimentada por bateria, sin conexion constante
+        - **Flota de 10,000 camiones**: sincronizar {n} atomos (~{fmt_bytes(dsr_mem)}) por 3G es viable;
+          sincronizar {fmt_bytes(nx_mem)} de grafo por cada camion, no tanto
         """)
     else:
         st.markdown(f"""
@@ -118,9 +124,99 @@ if results:
         DSR ahorra **{ahorro_vs_nx:.0f}%** comparado con el arbol de conexiones
         y **{ahorro_vs_faiss:.0f}%** comparado con el fichero numerico.
 
-        Esto importa cuando necesitas **sincronizar reglas entre muchas sucursales** o
-        dispositivos con almacenamiento limitado.
+        **Donde marca la diferencia en la practica:**
+        - **Franquicia con 500 tiendas**: sincronizar {n} reglas como atomos ({fmt_bytes(dsr_mem)}) es
+          casi instantaneo; sincronizar el grafo completo ({fmt_bytes(nx_mem)}) por cada tienda es pesado
+        - **App de campo para inspectores** sin internet: el telefono lleva todas las reglas en poco espacio
+        - **Dispositivo medico portatil** con firmware de 64 KB que evalua protocolos de diagnostico
+        - **Cajeros automaticos rurales** con conectividad intermitente: reglas de negocio locales y compactas
+        - **Videojuego con 1,000 NPCs**: cada personaje lleva sus reglas de comportamiento sin saturar la RAM
+        - **Red de cajeros en zonas remotas**: cada uno opera autonomo con las reglas minimas
+          y sincroniza solo los atomos nuevos cuando tiene senal
         """)
+
+    # Que guarda cada uno por dentro
+    st.markdown("---")
+    st.subheader("Que guarda cada uno exactamente?")
+
+    col_dsr, col_nx, col_faiss = st.columns(3)
+
+    with col_dsr:
+        st.markdown("**DSR - Lo minimo posible**")
+        st.code(f"""
+Lo que se guarda en disco:
+  atom.to_minimal_dict()
+  src/dsr/atom.py
+
+  Contenido por atomo:
+  {{
+    "id": "node_0001",
+    "sigma": {{
+      "type": "sensor",
+      "value_range": [0, 100],
+      "unit": "celsius",
+      "zone": "z1"
+    }},
+    "provenance": "...",
+    "confidence": 0.95
+  }}
+
+  ~{dsr_mem // n} bytes por atomo
+
+Lo que NO guarda:
+  - Embeddings (se generan)
+  - Relaciones (se descubren)
+  - Indices de busqueda
+        """, language=None)
+
+    with col_nx:
+        st.markdown("**NetworkX - Nodos + aristas**")
+        st.code(f"""
+Lo que se guarda en memoria:
+  nx.DiGraph con node_link_data
+  networkx (libreria externa)
+
+  Por cada nodo ({n} nodos):
+  {{
+    "id": "node_0001",
+    "type": "sensor",
+    ... 6 propiedades ...
+  }}
+
+  Por cada arista ({n * params['relations_per_node']} aristas):
+  {{
+    "source": "node_0001",
+    "target": "node_0002",
+    "type": "co_located",
+    "weight": 0.8
+  }}
+
+  ~{nx_mem // n} bytes por nodo
+  (nodo + sus {params['relations_per_node']} aristas)
+        """, language=None)
+
+    with col_faiss:
+        st.markdown("**FAISS - Vectores + metadata**")
+        st.code(f"""
+Lo que se guarda en memoria:
+  faiss.IndexFlatL2 + metadata
+  faiss-cpu (libreria de Meta)
+
+  Por cada vector:
+  - Embedding: {params['dims']} floats x 4 bytes
+    = {params['dims'] * 4} bytes de numeros
+
+  - Metadata JSON:
+    {{"id": "node_0001",
+     "type": "sensor", ...}}
+
+  ~{faiss_mem // n} bytes por vector
+  (embedding + metadata)
+
+  El indice permite buscar
+  los K mas cercanos en O(n)
+  usando instrucciones SIMD
+        """, language=None)
 
     # Bar chart
     st.subheader("Comparativa visual")
@@ -174,7 +270,8 @@ if results:
     **En resumen:** DSR es mas lento contestando (ver pagina Latencia),
     pero necesita mucho menos espacio para guardar la informacion.
     Es ideal para situaciones donde **el espacio importa mas que la velocidad**:
-    dispositivos pequenos, redes con poco ancho de banda, o sistemas con millones de elementos.
+    sensores IoT, drones, dispositivos medicos portatiles, flotas de vehiculos,
+    redes con poco ancho de banda, o sistemas distribuidos que necesitan sincronizarse frecuentemente.
     """)
 else:
     st.info("Haz clic en 'Pesar las mochilas' para comenzar.")

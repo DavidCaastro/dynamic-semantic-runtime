@@ -79,6 +79,21 @@ if domain == "telemetry":
 
     Ahora vamos a poner a los tres a competir con **{n_atoms} termometros**.
     Navega a cada pagina del menu lateral para ver los resultados.
+
+    ---
+
+    ### Donde se usa cada enfoque en el mundo real?
+
+    | Caso de uso | Mejor enfoque | Por que |
+    |-------------|---------------|---------|
+    | Panel de control en planta industrial con 10,000 sensores | Graph DB / Vector DB | Necesita respuestas instantaneas, el servidor tiene memoria de sobra |
+    | Drone agricola con 256 KB de RAM monitoreando cultivos | **DSR** | No cabe un grafo ni un indice de vectores en tan poca memoria |
+    | Flota de 5,000 camiones enviando telemetria por red 3G lenta | **DSR** | Sincronizar grafos completos por red lenta es impracticable; los atomos compactos si viajan bien |
+    | App de recomendaciones buscando productos similares | Vector DB (FAISS) | La busqueda por similitud en milisegundos es exactamente lo que hace FAISS |
+    | Red de sensores marinos en boyas sin conexion estable | **DSR** | Cada boya procesa localmente con almacenamiento minimo y sincroniza cuando tiene senal |
+    | Sistema de alerta sismica distribuido en zonas remotas | **DSR** | Cada estacion necesita autonomia total con hardware minimo |
+    | Base de conocimiento medico con millones de relaciones entre sintomas | Graph DB (NetworkX/Neo4j) | Las relaciones entre conceptos son el valor principal, vale la pena almacenarlas |
+    | Satelites de observacion terrestre con capacidad limitada | **DSR** | Almacenamiento a bordo es carisimo; DSR guarda solo las reglas de procesamiento |
     """)
 else:
     st.markdown(f"""
@@ -109,7 +124,43 @@ else:
 
     Ahora vamos a poner a los tres a competir con **{n_atoms} reglas**.
     Navega a cada pagina del menu lateral para ver los resultados.
+
+    ---
+
+    ### Donde se usa cada enfoque en el mundo real?
+
+    | Caso de uso | Mejor enfoque | Por que |
+    |-------------|---------------|---------|
+    | ERP centralizado con 100 usuarios consultando permisos en tiempo real | Graph DB / Vector DB | Necesita respuestas instantaneas, el servidor es potente |
+    | App de campo para inspectores que trabajan sin internet | **DSR** | El telefono lleva las reglas compactas y las evalua localmente sin conexion |
+    | Franquicia con 500 sucursales que deben sincronizar politicas | **DSR** | Enviar atomos de 250 bytes cada uno es mucho mas rapido que sincronizar grafos completos |
+    | Motor de busqueda legal que encuentra contratos similares | Vector DB (FAISS) | Busqueda semantica por similitud es el fuerte de los vectores |
+    | Dispositivo medico portatil con reglas de diagnostico en firmware | **DSR** | Solo tiene 64 KB de flash; DSR cabe, un grafo con relaciones no |
+    | Videojuego con NPCs que siguen reglas de comportamiento dinamicas | **DSR** | Cada NPC lleva sus reglas minimas y genera comportamiento segun el contexto del momento |
+    | Plataforma fintech con arbol de decisiones de credito | Graph DB (NetworkX/Neo4j) | Las dependencias entre reglas son complejas y vale la pena mapearlas explicitamente |
+    | Red de cajeros automaticos en zonas rurales con conectividad intermitente | **DSR** | Cada cajero opera autonomo con reglas minimas y sincroniza cuando tiene conexion |
     """)
+
+st.markdown("""
+---
+
+### Y para crear modelos de IA / Machine Learning?
+
+DSR no reemplaza a TensorFlow o PyTorch para entrenar redes neuronales,
+pero si tiene aplicaciones practicas en el ecosistema de ML:
+
+| Caso de uso en ML/IA | Enfoque | Como funciona |
+|----------------------|---------|---------------|
+| **Preprocesar datos en el edge antes de enviar al modelo** | DSR | Un sensor con DSR aplica operadores de normalizacion y filtrado localmente, y solo envia los resultados compactos al modelo central. Ahorra ancho de banda. |
+| **Feature engineering ligero en dispositivos** | DSR | Cada atomo define como transformar datos crudos en features. El dispositivo genera features bajo demanda sin cargar un pipeline completo de sklearn. |
+| **Knowledge distillation compacta** | DSR | Un modelo grande en la nube "destila" su conocimiento en atomos con operadores. El dispositivo edge usa esos atomos para hacer inferencia local sin el modelo pesado. |
+| **Embeddings contextuales sin modelo pre-entrenado** | DSR | DSR genera embeddings diferentes segun el contexto (dominio, condiciones) sin necesitar un modelo como BERT o Sentence-Transformers. Util cuando no cabe un LLM en el dispositivo. |
+| **RAG (Retrieval-Augmented Generation) en el edge** | DSR + FAISS | Los atomos almacenan conocimiento compacto. Cuando hay conexion, se genera un indice FAISS temporal para busqueda rapida. Sin conexion, DSR genera bajo demanda. |
+| **Versionado de conocimiento para reentrenamiento** | DSR | Cada atomo tiene version y provenance. Facil rastrear que conocimiento cambio entre versiones del modelo para reentrenamiento incremental. |
+| **Federated Learning con bajo ancho de banda** | DSR | En vez de enviar gradientes pesados, cada nodo envia atomos actualizados (~250 bytes). El servidor central los agrega y redistribuye. |
+| **Busqueda semantica completa en servidor** | FAISS / Vector DB | Si tienes un servidor con GPU y millones de documentos, FAISS con embeddings de un modelo pre-entrenado es la mejor opcion. DSR no compite aqui. |
+| **Grafo de conocimiento para LLMs (knowledge graph)** | Graph DB | Si alimentas un LLM con un knowledge graph estructurado (ej: Wikidata), NetworkX o Neo4j son la opcion natural. |
+""")
 
 st.subheader("Datos de la prueba")
 col1, col2, col3, col4 = st.columns(4)

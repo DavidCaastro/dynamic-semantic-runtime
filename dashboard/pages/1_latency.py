@@ -103,6 +103,17 @@ if results:
 
         DSR es mas lento porque **no guarda respuestas precalculadas**. Genera todo al momento.
         Pero su ventaja esta en otro lugar: ve la pagina de **Memoria** para descubrirla.
+
+        **Cuando esta lentitud NO importa:**
+        - Un sensor en un invernadero que revisa la temperatura **cada 30 segundos** (le sobra tiempo)
+        - Un drone que procesa datos de vuelo **entre misiones**, no en pleno vuelo
+        - Un dispositivo IoT que analiza lecturas **una vez por minuto** y duerme el resto
+        - Un sistema de alerta sismica que evalua **cada 5 segundos** (200ms es suficiente)
+
+        **Cuando SI importa y NO conviene DSR:**
+        - Un chatbot que debe responder en menos de 100ms
+        - Un buscador de productos que necesita resultados instantaneos
+        - Trading algoritmico donde cada microsegundo cuenta
         """)
     else:
         st.markdown(f"""
@@ -116,7 +127,125 @@ if results:
 
         DSR es mas lento porque **reconstruye todo** en cada consulta.
         Pero su archivador es mucho mas pequeno: ve la pagina de **Memoria**.
+
+        **Cuando esta lentitud NO importa:**
+        - Un inspector de campo que consulta reglas **una por una** mientras revisa un local
+        - Una sucursal que valida politicas de descuento **al cierre del dia**
+        - Un cajero automatico que verifica reglas de retiro **cada transaccion** (unos segundos esta bien)
+        - Un dispositivo medico que evalua protocolos de diagnostico **entre pacientes**
+
+        **Cuando SI importa y NO conviene DSR:**
+        - Una pasarela de pagos que valida miles de transacciones por segundo
+        - Un sistema de recomendaciones en tiempo real para e-commerce
+        - Un motor de reglas en trading de alta frecuencia
         """)
+
+    # Pipeline: que pasa por dentro
+    st.markdown("---")
+    st.subheader("Que paso por dentro? (el proceso paso a paso)")
+
+    col_dsr, col_nx, col_faiss = st.columns(3)
+
+    with col_dsr:
+        st.markdown("**DSR - Genera bajo demanda**")
+        st.code(f"""
+1. build_atoms({n})
+   dashboard/utils.py
+   > Crea {n} KnowledgeAtom con sigma,
+     operadores y constraints
+
+2. DSRRuntime(dims={params['dims']})
+   src/dsr/runtime.py
+   > Inicializa el motor con
+     RepresentationGenerator,
+     AdaptiveCache y EGraph
+
+3. runtime.register_many(atoms)
+   > Registra los {n} atomos
+     (solo guarda las recetas)
+
+4. runtime.query(query, context)
+   src/dsr/runtime.py:query()
+   Por cada atomo:
+   a) cache.get() - busca en cache
+   b) generator.generate(atom, ctx)
+      src/dsr/generator.py
+      > Calcula embedding efimero
+        desde sigma + contexto
+   c) cache.put() - guarda resultado
+   d) atom.all_terms() + EGraph.add()
+      src/dsr/egraph.py
+      > Alimenta terminos al E-Graph
+
+5. egraph.discover_relations()
+   > Descubre relaciones emergentes
+     por unificacion de terminos
+        """, language=None)
+
+    with col_nx:
+        st.markdown("**NetworkX - Recorre grafo**")
+        st.code(f"""
+1. _build_graph({n}, {params['relations_per_node']})
+   dashboard/runners/networkx_runner.py
+   > Crea nx.DiGraph con {n} nodos
+
+2. G.add_node() x {n}
+   > Inserta cada nodo con
+     sus propiedades (tipo, zona,
+     unidad, rango...)
+
+3. G.add_edge() x {n * params['relations_per_node']}
+   > Crea {params['relations_per_node']} aristas por nodo
+     (co_located, correlated)
+
+--- En cada consulta: ---
+
+4. G.neighbors(node) x {n}
+   > Recorre los vecinos de
+     cada uno de los {n} nodos
+
+5. nx.shortest_path(G, A, B)
+   > Calcula la ruta mas corta
+     entre dos nodos (Dijkstra)
+
+6. _estimate_graph_memory(G)
+   > Serializa todo el grafo a JSON
+     para medir su peso
+        """, language=None)
+
+    with col_faiss:
+        st.markdown("**FAISS - Busca en indice**")
+        st.code(f"""
+1. np.random.randn({n}, {params['dims']})
+   dashboard/runners/vectordb_runner.py
+   > Genera {n} vectores aleatorios
+     de {params['dims']} dimensiones (float32)
+
+2. np.linalg.norm() + normalize
+   > Normaliza cada vector a
+     longitud 1 (norma L2)
+
+3. faiss.IndexFlatL2({params['dims']})
+   > Crea indice de busqueda
+     por distancia euclidiana
+
+4. index.add(vectors)
+   > Inserta los {n} vectores
+     en el indice
+
+--- En cada consulta: ---
+
+5. index.search(query_vec, k=10)
+   > Busca los 10 vectores mas
+     cercanos al vector de consulta
+     (fuerza bruta L2 optimizada
+      con instrucciones SIMD)
+        """, language=None)
+
+    st.caption(
+        "Cada columna muestra las funciones y modulos reales que se ejecutan. "
+        "DSR tiene mas pasos porque genera todo al momento; los otros solo consultan datos preconstruidos."
+    )
 
     # Bar chart
     st.subheader("Comparativa visual")

@@ -176,7 +176,42 @@ if results:
 
     **La conclusion:** DSR escala bien en memoria (su mochila crece poco),
     aunque su tiempo de respuesta crece con la cantidad de datos.
+
+    **Que significa esto en casos reales?**
+    - Una **red de 5,000 sensores marinos** puede funcionar con DSR
+      porque cada boya solo necesita almacenar sus atomos compactos,
+      aunque tarde un poco mas en procesarlos
+    - Una **flota de drones** puede llevar las reglas de {SCALE_SIZES[-1]} puntos de inspeccion
+      sin llenar su memoria, procesando cada punto entre sobrevuelos
+    - Una **cadena de {SCALE_SIZES[-1]} tiendas** puede sincronizar todas sus reglas de negocio
+      en segundos porque los atomos pesan poco, incluso por redes lentas
+    - En cambio, un **buscador en tiempo real** con {SCALE_SIZES[-1]} productos
+      necesita FAISS o similar: la velocidad de busqueda es critica
     """)
+
+    # What's happening at each scale
+    with st.expander("Que pasa por dentro al escalar? (detalle tecnico)"):
+        st.markdown(f"""
+        Al aumentar N, cada sistema se comporta diferente internamente:
+
+        **DSR** (`src/dsr/runtime.py:query()`)
+        - Con N=10: recorre 10 atomos, aplica 2 operadores a cada uno, genera 10 embeddings, alimenta 20 terminos al E-Graph
+        - Con N=5000: recorre 5,000 atomos, aplica 10,000 operadores, genera 5,000 embeddings, alimenta 10,000 terminos al E-Graph
+        - El tiempo crece porque `generator.generate()` se ejecuta N veces y `egraph.add()` se ejecuta 2N veces
+        - La memoria crece poco: solo se guardan los sigma (~250 bytes/atomo), nunca los embeddings
+
+        **NetworkX** (`networkx_runner.py:run()`)
+        - Con N=10: el grafo tiene 10 nodos + {10 * params['relations_per_node']} aristas. `G.neighbors()` es O(1) por nodo
+        - Con N=5000: el grafo tiene 5,000 nodos + {5000 * params['relations_per_node']:,} aristas. `shortest_path()` es O(N log N)
+        - El tiempo crece por el shortest_path (Dijkstra) y el volumen de aristas
+        - La memoria crece linealmente: cada arista se almacena explicitamente
+
+        **FAISS** (`vectordb_runner.py:run()`)
+        - Con N=10: busca entre 10 vectores de {params['dims']}d. Trivial
+        - Con N=5000: busca entre 5,000 vectores de {params['dims']}d. IndexFlatL2 es O(N) pero con SIMD
+        - El tiempo crece linealmente pero con constante muy baja (operaciones vectorizadas en CPU)
+        - La memoria crece linealmente: N x {params['dims']} x 4 bytes
+        """)
 
     # Data table
     with st.expander("Ver todos los datos en tabla"):
