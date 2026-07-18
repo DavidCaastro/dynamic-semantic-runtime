@@ -147,6 +147,33 @@ streamlit run dashboard/app.py
 
 **Dashboard (optional):** `pip install -e ".[dashboard]"` adds streamlit, plotly, pandas, networkx, and faiss-cpu.
 
+## Interactive Dashboard
+
+The dashboard provides a real-time comparative benchmark between DSR, NetworkX (Graph DB), and FAISS (Vector DB) with a story-driven narrative that adapts to the selected domain.
+
+```bash
+pip install -e ".[dashboard]"
+streamlit run dashboard/app.py
+```
+
+### Features
+
+- **Two domain scenarios**: Factory with sensors (telemetry) or Company with business rules — each tells a different story with analogies
+- **Latency page**: measures query response time across all three systems, shows step-by-step processing pipeline for each (which module and function handles each step), and includes cold vs warm cache comparison
+- **Memory page**: compares storage footprint, shows exactly what each system stores internally (DSR atoms vs NetworkX nodes+edges vs FAISS embeddings+metadata)
+- **Scalability page**: runs benchmarks from N=10 to N=5,000 with latency, memory, and per-unit efficiency curves
+- **Practical use cases**: tables with real-world scenarios for IoT, edge computing, distributed systems, and when to use each approach
+- **ML/AI use cases**: feature engineering on edge, knowledge distillation, contextual embeddings without LLMs, federated learning, RAG on edge devices
+
+### Configurable Parameters
+
+| Parameter | Options | Effect |
+|-----------|---------|--------|
+| N (units) | 10 – 5,000 | Number of knowledge atoms / graph nodes / vectors |
+| Dimensions | 32 – 384 | Embedding vector size |
+| Relations/node | 1 – 20 | Edges per node in NetworkX graph |
+| Domain | telemetry, business_rules | Changes narrative, atom structure, and operators |
+
 ## Project Structure
 
 ```
@@ -167,16 +194,17 @@ examples/
   business_rules.py     # Domain: API business logic transitions
 
 dashboard/
-  app.py               # Streamlit entry point with sidebar controls
+  app.py               # Entry point: story-driven intro, use case tables, ML/AI cases
   utils.py             # Atom builders and stats formatters
   runners/
-    dsr_runner.py      # DSR real benchmark runner
-    networkx_runner.py # NetworkX (Graph DB) benchmark runner
-    vectordb_runner.py # FAISS (Vector DB) benchmark runner
+    __init__.py        # Re-exports all runners
+    dsr_runner.py      # DSR benchmark (query + cold/warm cache comparison)
+    networkx_runner.py # NetworkX DiGraph benchmark (neighbors + shortest path)
+    vectordb_runner.py # FAISS IndexFlatL2 benchmark (k-nearest search)
   pages/
-    1_latency.py       # Latency comparison (bar charts, p50/p95/p99)
-    2_memory.py        # Memory footprint side-by-side
-    3_scalability.py   # Scalability curves (N = 10 to 5000)
+    1_latency.py       # Latency comparison + processing pipeline + cache effect
+    2_memory.py        # Storage footprint + internal data structures breakdown
+    3_scalability.py   # Scalability curves (N = 10 to 5,000) + scaling analysis
 ```
 
 ## Computational Analogy
@@ -187,6 +215,22 @@ This proposal is analogous to the paradigm shift introduced by compilers:
 - **After**: store rules capable of producing results.
 
 DSR proposes: **do not store materialized knowledge. Store the minimal rules capable of reconstructing any necessary representation.**
+
+## Practical Use Cases
+
+| Scenario | Best approach | Why |
+|----------|--------------|-----|
+| Agricultural drone with 256 KB RAM | **DSR** | No room for a graph or vector index |
+| Fleet of 5,000 trucks syncing over 3G | **DSR** | Compact atoms travel well over slow networks |
+| Marine sensor buoys without stable connectivity | **DSR** | Local processing with minimal storage, sync when signal available |
+| Seismic alert stations in remote areas | **DSR** | Full autonomy on minimal hardware |
+| Satellite onboard processing | **DSR** | Storage in orbit is expensive; DSR stores only rules |
+| Field inspection app (offline) | **DSR** | Phone carries compact rules, evaluates locally |
+| Product recommendation search | **FAISS** | Millisecond similarity search is FAISS's strength |
+| Medical knowledge base with millions of symptom relations | **Graph DB** | Relationships between concepts are the core value |
+| Edge preprocessing before sending to ML model | **DSR** | Apply normalization/filtering locally, send compact results |
+| Contextual embeddings without a pre-trained model | **DSR** | Generates context-dependent embeddings without BERT/LLMs |
+| Federated learning with low bandwidth | **DSR** | Send updated atoms (~250 bytes) instead of heavy gradients |
 
 ## Positioning
 
