@@ -133,13 +133,19 @@ python benchmarks/bench_latency.py
 
 # Run tests
 python -m pytest tests/ -v
+
+# Launch interactive dashboard (optional)
+pip install -e ".[dashboard]"
+streamlit run dashboard/app.py
 ```
 
 ### Requirements
 
 - Python 3.10+
-- numpy (only dependency)
+- numpy (only core dependency)
 - No Docker, no cloud, no GPU required
+
+**Dashboard (optional):** `pip install -e ".[dashboard]"` adds streamlit, plotly, pandas, networkx, and faiss-cpu.
 
 ## Project Structure
 
@@ -159,6 +165,18 @@ benchmarks/
 examples/
   vehicle_telemetry.py  # Domain: fleet sensor data
   business_rules.py     # Domain: API business logic transitions
+
+dashboard/
+  app.py               # Streamlit entry point with sidebar controls
+  utils.py             # Atom builders and stats formatters
+  runners/
+    dsr_runner.py      # DSR real benchmark runner
+    networkx_runner.py # NetworkX (Graph DB) benchmark runner
+    vectordb_runner.py # FAISS (Vector DB) benchmark runner
+  pages/
+    1_latency.py       # Latency comparison (bar charts, p50/p95/p99)
+    2_memory.py        # Memory footprint side-by-side
+    3_scalability.py   # Scalability curves (N = 10 to 5000)
 ```
 
 ## Computational Analogy
